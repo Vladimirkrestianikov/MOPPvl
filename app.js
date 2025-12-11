@@ -349,7 +349,7 @@ function getCategoryName(category) {
 
 function getStatusName(status) {
     const names = {
-        new: 'Новая',
+        new: 'в Обработке',
         in_progress: 'В работе',
         solved: 'Решено',
         in_work: 'В обработке', // Добавлено
@@ -959,7 +959,7 @@ function addMarkerToMap(problem) {
             break;
         default:
             statusColor = '#f44336';
-            statusText = 'Новая';
+            statusText = 'В обработке';
     }
     
     // Упрощенный и компактный попап
@@ -1731,7 +1731,7 @@ async function loadAdminData() {
                         break;
                     default:
                         statusColor = '#80cbc4';
-                        statusText = 'Новая';
+                        statusText = 'В обработке';
                 }
                 
                 html += `
