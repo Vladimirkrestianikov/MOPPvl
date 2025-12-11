@@ -350,9 +350,9 @@ function getCategoryName(category) {
 function getStatusName(status) {
     const names = {
         new: 'в Обработке',
-        in_progress: 'В работе',
+        in_progress: 'В обработке',
         solved: 'Решено',
-        in_work: 'В обработке', // Добавлено
+        in_work: 'В работе', // Добавлено
         rejected: 'Отклонена' // Добавлено
 
     
