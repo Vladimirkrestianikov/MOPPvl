@@ -1036,7 +1036,7 @@ function addMarkerToMap(problem) {
                 
                 ${isAdmin() ? `
                     <div style="display: flex; gap: 5px; flex-wrap: wrap; width: 100%;">
-                        <button onclick="changeProblemStatus('${problem.id}', 'in_progress')" 
+                        <button onclick="changeProblemStatus('${problem.id}', 'in_work')" 
                                 style="
                                     background: #ff9800; 
                                     color: white; 
@@ -1050,7 +1050,7 @@ function addMarkerToMap(problem) {
                                 ">
                             <i class="fas fa-wrench"></i>
                         </button>
-                        <button onclick="changeProblemStatus('${problem.id}', 'in_work')" 
+                        <button onclick="changeProblemStatus('${problem.id}', 'in_progress')" 
                                 style="
                                     background: #2196f3; 
                                     color: white; 
@@ -1786,7 +1786,7 @@ async function loadAdminData() {
                             </div>
                             <div style="display: flex; gap: 5px; flex-shrink: 0;">
                                 ${problem.status === 'new' ? 
-                                    `<button onclick="changeProblemStatus('${problem.id}', 'in_progress')" style="
+                                    `<button onclick="changeProblemStatus('${problem.id}', 'in_work')" style="
                                         background: #ffd54f;
                                         color: #5d4037;
                                         border: none;
@@ -1856,6 +1856,7 @@ async function loadAdminData() {
             const solved = allProblems.filter(p => p.status === 'solved').length;
             const inProgress = allProblems.filter(p => p.status === 'in_progress').length;
             const newProblems = allProblems.filter(p => p.status === 'in_progress').length;
+               const inwork = allProblems.filter(p => p.status === 'in_work').length;
             const rejected = allProblems.filter(p => p.status === 'rejected').length; // Добавлено
     
             
@@ -1891,7 +1892,7 @@ async function loadAdminData() {
                         border: 1px solid #b2dfdb;
                         box-shadow: 0 1px 3px rgba(0, 121, 107, 0.1);
                     ">
-                        <div style="font-size: 1.4rem; font-weight: bold; color: #00796b; margin-bottom: 4px;">${inProgress}</div>
+                        <div style="font-size: 1.4rem; font-weight: bold; color: #00796b; margin-bottom: 4px;">${inwork}</div>
                         <div style="font-size: 0.8rem; color: #00796b; font-weight: 500;">В работе</div>
                     </div>
                     <div style="
