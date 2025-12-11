@@ -1526,7 +1526,7 @@ async function addProblem() {
             title: title,
             description: description,
             category: category,
-            status: 'in_progress',
+            status: 'in_work',
             latitude: parseFloat(selectedLat),
             longitude: parseFloat(selectedLng),
             photoBase64: photoBase64,        // ← Теперь base64
