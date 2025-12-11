@@ -958,7 +958,7 @@ function addMarkerToMap(problem) {
             statusText = 'Отклонена';
             break;
         default:
-            statusColor = '#f44336';
+            statusColor = '#2196f3';
             statusText = 'В обработке';
     }
     
@@ -1526,7 +1526,7 @@ async function addProblem() {
             title: title,
             description: description,
             category: category,
-            status: 'in_work',
+            status: 'in_progress',
             latitude: parseFloat(selectedLat),
             longitude: parseFloat(selectedLng),
             photoBase64: photoBase64,        // ← Теперь base64
