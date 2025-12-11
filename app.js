@@ -1855,7 +1855,7 @@ async function loadAdminData() {
             const total = allProblems.length;
             const solved = allProblems.filter(p => p.status === 'solved').length;
             const inProgress = allProblems.filter(p => p.status === 'in_progress').length;
-            const newProblems = allProblems.filter(p => p.status === 'new').length;
+            const newProblems = allProblems.filter(p => p.status === 'in_progress').length;
             const rejected = allProblems.filter(p => p.status === 'rejected').length; // Добавлено
     
             
