@@ -946,8 +946,8 @@ function addMarkerToMap(problem) {
             statusText = 'Решено';
             break;
         case 'in_progress':
-            statusColor = '#ff9800';
-            statusText = 'В работе';
+            statusColor = '#2196f3';
+            statusText = 'В обработке';
             break;
         case 'processing':
             statusColor = '#2196f3';
@@ -1727,7 +1727,7 @@ async function loadAdminData() {
                         break;
                     case 'in_progress':
                         statusColor = '#ffd54f';
-                        statusText = 'В работе';
+                        statusText = 'В обработку';
                         break;
                     default:
                         statusColor = '#80cbc4';
