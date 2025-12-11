@@ -1050,7 +1050,7 @@ function addMarkerToMap(problem) {
                                 ">
                             <i class="fas fa-wrench"></i>
                         </button>
-                        <button onclick="changeProblemStatus('${problem.id}', 'processing')" 
+                        <button onclick="changeProblemStatus('${problem.id}', 'in_work')" 
                                 style="
                                     background: #2196f3; 
                                     color: white; 
