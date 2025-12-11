@@ -358,7 +358,7 @@ function getStatusName(status) {
     
         
     };
-    return names[status] || 'Новая';
+    return names[status] || 'В обработке';
 }
 
 function getAuthErrorMessage(error) {
