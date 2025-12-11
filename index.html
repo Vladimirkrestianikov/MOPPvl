@@ -109,7 +109,6 @@
             <label><i class="fas fa-flag"></i> Статус</label>
             <select id="statusFilter" class="filter-select">
     <option value="all">Все статусы</option>
-    <option value="new">Новая</option>
     <option value="in_progress">В работе</option>
     <option value="processing">В обработке</option> <!-- Добавлено -->
     <option value="rejected">Отклонена</option> <!-- Добавлено -->
@@ -211,11 +210,11 @@
                 
                 <!-- Фото -->
                 <div class="form-group">
-                    <label><i class="fas fa-camera"></i> Фотография (необязательно):</label>
+                    <label><i class="fas fa-camera"></i> Фотография:</label>
                     <div class="photo-section" id="photoUpload">
                         <i class="fas fa-cloud-upload-alt"></i>
                         <p>Нажмите для загрузки фотографии</p>
-                        <p style="font-size: 0.85rem; color: #888;">Макс. размер: 1MB</p>
+                       
                     </div>
                     <div class="photo-preview" id="photoPreview">
                         <img id="previewImage" src="" alt="Предпросмотр">
