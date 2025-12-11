@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOP Pvl</title>
+    
+    <!-- Leaflet (карты) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Иконки -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Наши стили -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    <script>
+    // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+    // ВСТАВЬ СВОЙ КЛЮЧ СЮДА (получи бесплатно: https://aistudio.google.com/app/apikey)
+    window.GEMINI_API_KEY = 'AIzaSyCQBH7SvVLfIuD3PSm-oYtViQDy8dzxQBs';
+    // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+</script>
+</head>
+<body>
+    <!-- Шапка -->
+   <div class="header">
+    <div class="header-top">
+        <div class="logo">
+            <div class="logo-icon">
+               <img src="/Logo.png" alt="" style="">
+            </div>
+            <div class="logo-text">
+                <h1>MOP Pvl</h1>
+                <p>Ерке Ертістің жағасында – таза, жайлы, заманауи Павлодар үшін!</p>
+            </div>
+        </div>
+        
+        <!-- Навигационное меню -->
+        <nav class="main-nav">
+            <ul class="nav-list">
+                <li class="nav-item active">
+                    <a href="#">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <span>Map of problem</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/about.html">
+                        <i class="fas fa-list"></i>
+                        <span>About us
+                        </span>
+                    </a>
+                </li>
+            
+            </ul>
+        </nav>
+        
+        <div class="auth-section" id="authSection">
+            <!-- Показывается если пользователь не вошел -->
+            <button class="auth-btn login-btn" onclick="showAuthModal()">
+                <i class="fas fa-sign-in-alt"></i> Войти
+            </button>
+            
+            <!-- Показывается если пользователь вошел -->
+            <div class="user-info" id="userInfo" style="display: none;">
+                <div class="user-avatar" id="userAvatar">?</div>
+                <span class="user-name" id="userName">Пользователь</span>
+                <button class="auth-btn logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt">выйти</i>
+                </button>
+                <button class="auth-btn admin-btn" onclick="showAdminPanel()" id="adminBtn" style="display: none;">
+                    <i class="fas fa-cog"></i> Админ панель
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Панель фильтров с горизонтальным скроллом -->
+   <div class="xkf4p_panel">
+    <div class="xkf4p_hdr">
+        <h3><i class="fas fa-filter"></i> Фильтры проблем</h3>
+        <span id="filteredCount" class="xkf4p_cnt">Все проблемы</span>
+    </div>
+
+    <div class="xkf4p_grid">
+
+        <div class="f91_group">
+            <label><i class="fas fa-tag"></i> Категория</label>
+            <select class="f91_sel" id="categoryFilter">
+                <option value="all">Все категории</option>
+                <option value="road">Дороги и ямы</option>
+                <option value="light">Освещение</option>
+                <option value="garbage">Мусор и чистота</option>
+                <option value="sidewalk">Тротуары</option>
+                <option value="snow">Снег и лед</option>
+                <option value="other">Другое</option>
+            </select>
+        </div>
+
+        <div class="f91_group">
+            <label><i class="fas fa-flag"></i> Статус</label>
+            <select id="statusFilter" class="filter-select">
+    <option value="all">Все статусы</option>
+    <option value="new">Новая</option>
+    <option value="in_progress">В работе</option>
+    <option value="processing">В обработке</option> <!-- Добавлено -->
+    <option value="rejected">Отклонена</option> <!-- Добавлено -->
+    <option value="solved">Решено</option>
+</select>
+        </div>
+
+        <div class="f91_group">
+            <label><i class="fas fa-calendar"></i> Дата</label>
+            <select class="f91_sel" id="dateFilter">
+                <option value="all">За все время</option>
+                <option value="today">Сегодня</option>
+                <option value="week">За неделю</option>
+                <option value="month">За месяц</option>
+            </select>
+        </div>
+
+        <div class="f91_group">
+            <label><i class="fas fa-map-marker-alt"></i> Район</label>
+            <select class="f91_sel" id="areaFilter">
+                <option value="all">Все районы</option>
+                <option value="center">Центр</option>
+                <option value="south">Южный</option>
+                <option value="north">Северный</option>
+                <option value="east">Восточный</option>
+                <option value="west">Западный</option>
+            </select>
+        </div>
+
+        <div class="f91_group">
+            <label><i class="fas fa-user"></i> Пользователь</label>
+            <select class="f91_sel" id="userFilter">
+                <option value="all">Все пользователи</option>
+                <option value="my">Мои проблемы</option>
+            </select>
+        </div>
+
+        <div class="f91_group xkf4p_act">
+            <button class="btn_kp92" onclick="clearFilters()">
+                <i class="fas fa-times"></i> Сбросить
+            </button>
+        </div>
+
+    </div>
+</div>
+
+</div>
+
+    <!-- Основной контейнер -->
+    <div class="container">
+        <!-- Боковая панель -->
+        <div class="sidebar">
+            <!-- Форма добавления проблемы -->
+            <div class="card">
+                <h2><i class="fas fa-plus-circle" style="color: #d4af37;"></i> Добавить проблему</h2>
+                
+                <!-- Категории -->
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> Выберите категорию:</label>
+                    <div class="categories">
+                        <div class="category-option active" data-category="road">
+                            <i class="fas fa-road" style="color: #f44336;"></i>
+                            <span class="category-name">Дороги</span>
+                        </div>
+                        <div class="category-option" data-category="light">
+                            <i class="fas fa-lightbulb" style="color: #ff9800;"></i>
+                            <span class="category-name">Освещение</span>
+                        </div>
+                        <div class="category-option" data-category="garbage">
+                            <i class="fas fa-trash" style="color: #4caf50;"></i>
+                            <span class="category-name">Мусор</span>
+                        </div>
+                        <div class="category-option" data-category="sidewalk">
+                            <i class="fas fa-walking" style="color: #2196f3;"></i>
+                            <span class="category-name">Тротуары</span>
+                        </div>
+                        <div class="category-option" data-category="snow">
+                            <i class="fas fa-snowflake" style="color: #00bcd4;"></i>
+                            <span class="category-name">Снег/Лед</span>
+                        </div>
+                        <div class="category-option" data-category="other">
+                            <i class="fas fa-exclamation-triangle" style="color: #9c27b0;"></i>
+                            <span class="category-name">Другое</span>
+                        </div>
+                    </div>
+                    <input type="hidden" id="problemCategory" value="road">
+                </div>
+                
+                <!-- Описание -->
+                <div class="form-group">
+                    <label for="problemTitle"><i class="fas fa-heading"></i> Краткое описание:</label>
+                    <input type="text" id="problemTitle" placeholder="Что случилось?" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="problemDescription"><i class="fas fa-align-left"></i> Подробное описание:</label>
+                    <textarea id="problemDescription" placeholder="Опишите проблему подробнее..."></textarea>
+                </div>
+                
+                <!-- Фото -->
+                <div class="form-group">
+                    <label><i class="fas fa-camera"></i> Фотография (необязательно):</label>
+                    <div class="photo-section" id="photoUpload">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Нажмите для загрузки фотографии</p>
+                        <p style="font-size: 0.85rem; color: #888;">Макс. размер: 1MB</p>
+                    </div>
+                    <div class="photo-preview" id="photoPreview">
+                        <img id="previewImage" src="" alt="Предпросмотр">
+                        <button type="button" class="secondary-btn" onclick="clearPhoto()" style="margin-top: 10px; width: 100%;">
+                            <i class="fas fa-trash"></i> Удалить фото
+                        </button>
+                    </div>
+                    <input type="file" id="photoInput" accept="image/*" style="display: none;">
+                </div>
+                
+                <!-- Координаты -->
+                <div class="form-group">
+                    <label><i class="fas fa-map-marker-alt"></i> Местоположение:</label>
+                    <div class="coordinates">
+                        <div class="coord-row">
+                            <span class="coord-label">Широта:</span>
+                            <span class="coord-value" id="latValue">51.1340</span>
+                        </div>
+                        <div class="coord-row">
+                            <span class="coord-label">Долгота:</span>
+                            <span class="coord-value" id="lngValue">76.9158</span>
+                        </div>
+                        <p style="margin-top: 10px; color: #888; font-size: 0.9rem; text-align: center;">
+                            Кликните на карте или используйте ваше местоположение
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Кнопки действий -->
+                <div class="action-buttons">
+                    <button class="action-btn secondary-btn" onclick="useMyLocation()" id="locationBtn">
+                        <i class="fas fa-location-crosshairs"></i> Мое местоположение
+                    </button>
+                    <button class="action-btn primary-btn" onclick="addProblem()" id="submitBtn">
+                        <i class="fas fa-paper-plane"></i> Добавить на карту
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Статистика -->
+            <div class="card">
+                <h2><i class="fas fa-chart-bar" style="color: #d4af37;"></i> Статистика</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalProblems">0</div>
+                        <div class="stat-label">Всего проблем</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="todayProblems">0</div>
+                        <div class="stat-label">Сегодня</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="myProblems">0</div>
+                        <div class="stat-label">Мои проблемы</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="solvedProblems">0</div>
+                        <div class="stat-label">Решено</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Инструкция -->
+            <div class="card" style="background: linear-gradient(135deg, #fef9e7, #fff8e1); border-color: #d4af37;">
+                <h2><i class="fas fa-info-circle" style="color: #d4af37;"></i> Как это работает</h2>
+                <div style="color: #666; font-size: 0.95rem; line-height: 1.6;">
+                    <p><i class="fas fa-check" style="color: #4caf50;"></i> <strong>1.</strong> Войдите или зарегистрируйтесь</p>
+                    <p><i class="fas fa-check" style="color: #4caf50;"></i> <strong>2.</strong> Выберите категорию проблемы</p>
+                    <p><i class="fas fa-check" style="color: #4caf50;"></i> <strong>3.</strong> Опишите проблему и добавьте фото</p>
+                    <p><i class="fas fa-check" style="color: #4caf50;"></i> <strong>4.</strong> Кликните на карте для выбора места</p>
+                    <p><i class="fas fa-check" style="color: #4caf50;"></i> <strong>5.</strong> Нажмите "Добавить на карту"</p>
+                    <p style="margin-top: 15px; color: #2e7d32; font-weight: 500;">
+                        <i class="fas fa-exclamation-triangle"></i> Добавлять проблемы можно только в границах Павлодара!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Карта -->
+        <div class="map-container">
+            <div class="card map-card">
+                <div class="map-header">
+                    <h3><i class="fas fa-map"></i> Карта Павлодара</h3>
+                    <div class="map-controls">
+                        <button class="map-btn" onclick="map.zoomIn()">
+                            <i class="fas fa-search-plus"></i> Приблизить
+                        </button>
+                        <button class="map-btn" onclick="map.zoomOut()">
+                            <i class="fas fa-search-minus"></i> Отдалить
+                        </button>
+                        <button class="map-btn" onclick="centerMap()">
+                            <i class="fas fa-home"></i> Лермонтова 93
+                        </button>
+                        <button class="map-btn" onclick="refreshData()">
+                            <i class="fas fa-sync-alt"></i> Обновить
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="map"></div>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #f44336;"></div>
+                        <span>Дороги</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ff9800;"></div>
+                        <span>Освещение</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #4caf50;"></div>
+                        <span>Мусор</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #2196f3;"></div>
+                        <span>Тротуары</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #00bcd4;"></div>
+                        <span>Снег/Лед</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #9c27b0;"></div>
+                        <span>Другое</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Попап аутентификации -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-content">
+            <h2>Вход / Регистрация</h2>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="showLoginForm()">Вход</button>
+                <button class="auth-tab" onclick="showRegisterForm()">Регистрация</button>
+            </div>
+            
+            <!-- Форма входа -->
+            <div class="auth-form active" id="loginForm">
+                <input type="email" id="loginEmail" class="auth-input" placeholder="Email" required>
+                <input type="password" id="loginPassword" class="auth-input" placeholder="Пароль" required>
+                <button class="auth-submit" onclick="login()">Войти</button>
+            </div>
+            
+            <!-- Форма регистрации -->
+            <div class="auth-form" id="registerForm">
+                <input type="text" id="registerName" class="auth-input" placeholder="Ваше имя" required>
+                <input type="email" id="registerEmail" class="auth-input" placeholder="Email" required>
+                <input type="password" id="registerPassword" class="auth-input" placeholder="Пароль (мин. 6 символов)" required>
+                <button class="auth-submit" onclick="register()">Зарегистрироваться</button>
+            </div>
+            
+            <button class="auth-submit" onclick="hideAuthModal()" style="background: #757575; margin-top: 15px;">
+                Закрыть
+            </button>
+        </div>
+    </div>
+
+    <!-- Админ панель -->
+    <div class="admin-modal" id="adminModal">
+        <div class="admin-content">
+            <div class="admin-header">
+                <h2><i class="fas fa-cog" style="color: #d4af37;"></i> Панель администратора</h2>
+                <button class="auth-btn logout-btn" onclick="hideAdminPanel()">
+                    <i class="fas fa-times"></i> Закрыть
+                </button>
+            </div>
+            
+            <div class="admin-sections">
+                <!-- Управление проблемами -->
+                <div class="admin-section">
+                    <h3><i class="fas fa-flag"></i> Управление проблемами</h3>
+                    <div id="adminProblemsList" style="max-height: 300px; overflow-y: auto;">
+                        <p>Загрузка проблем...</p>
+                    </div>
+                </div>
+                
+                <!-- Управление пользователями -->
+                
+                
+                <!-- Статистика -->
+                <div class="admin-section">
+                    <h3><i class="fas fa-chart-pie"></i> Статистика</h3>
+                    <div id="adminStats">
+                        <p>Загрузка статистики...</p>
+                    </div>
+                </div>
+                
+                <!-- Настройки -->
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключаем наши скрипты -->
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

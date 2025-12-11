@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>О нас | MopPVL</title>
+    
+    <!-- Leaflet (карты) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Иконки -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Наши стили -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    
+    <style>
+        /* ========== БАЗОВЫЕ СТИЛИ ========== */
+        :root {
+            --primary: #2e7d32;
+            --primary-light: #4caf50;
+            --accent: #00bcd4;
+            --accent-light: #26c6da;
+            --dark: #1a1a1a;
+            --gray: #666666;
+            --light-gray: #f8f9fa;
+            --white: #ffffff;
+            --gradient: linear-gradient(135deg, var(--primary), var(--primary-light));
+            --accent-gradient: linear-gradient(135deg, var(--accent), var(--accent-light));
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--light-gray);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        h1, h2, h3 { font-weight: 700; line-height: 1.2; }
+        h1 { font-size: 3.5rem; color: var(--primary); margin-bottom: 1rem; }
+        h2 { font-size: 2.5rem; color: var(--dark); margin-bottom: 2rem; text-align: center; }
+        h3 { font-size: 1.4rem; margin-bottom: 0.5rem; color: var(--dark); }
+        p { font-size: 1.1rem; color: var(--gray); margin-bottom: 1.5rem; }
+        .text-center { text-align: center; }
+
+        /* ========== ШАПКА ========== */
+        .header {
+            background: var(--white);
+            border-bottom: 1px solid #e0e0e0;
+            padding: 0 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex: 1;
+        }
+
+        .logo-icon img {
+            height: 50px;
+            width: auto;
+        }
+
+        .logo-text h1 {
+            font-size: 1.8rem;
+            margin: 0;
+            color: var(--primary);
+        }
+
+        .logo-text p {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin: 0;
+        }
+
+        .main-nav {
+            flex: 2;
+            display: flex;
+            justify-content: center;
+        }
+
+        .nav-list {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--gray);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item a:hover {
+            background: rgba(46, 125, 50, 0.1);
+            color: var(--primary);
+        }
+
+        .nav-item.active a {
+            background: var(--gradient);
+            color: var(--white);
+        }
+
+        .nav-item.active a:hover {
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+        }
+
+        .auth-section {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .auth-btn {
+            background: var(--gradient);
+            color: var(--white);
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.2);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        /* ========== ГЕРОЙ СЕКЦИЯ ========== */
+        .hero { 
+            min-height: 80vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 3rem 2rem; 
+            background: linear-gradient(135deg, #f8fafc 0%, #e8f5e9 100%); 
+            margin-top: 0;
+        }
+        
+        .hero-content { 
+            max-width: 800px; 
+            text-align: center; 
+        }
+        
+        .project-header { 
+            margin-bottom: 2rem; 
+        }
+        
+        .project-icon { 
+            width: 80px; 
+            height: 80px; 
+            background: var(--accent); 
+            border-radius: 20px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin: 0 auto 1.5rem; 
+            font-size: 32px; 
+            color: var(--white); 
+        }
+        
+        .project-name { 
+            font-size: 2.2rem; 
+            font-weight: 700; 
+            color: var(--primary); 
+        }
+        
+        .hero-title { 
+            font-size: 3rem; 
+            margin-bottom: 1.5rem; 
+            color: var(--dark); 
+        }
+        
+        .hero-subtitle { 
+            font-size: 1.3rem; 
+            color: var(--gray); 
+            max-width: 600px; 
+            margin: 0 auto; 
+        }
+
+        /* ========== СЕКЦИИ ========== */
+        .section { 
+            padding: 5rem 2rem; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+        
+        .section-light { 
+            background: var(--white); 
+        }
+        
+        .section-content { 
+            max-width: 800px; 
+            margin: 0 auto; 
+        }
+
+        /* ========== ПРОБЛЕМА И РЕШЕНИЕ ========== */
+        .problem-solution-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 3rem; 
+            margin-top: 3rem; 
+        }
+        
+        .problem-card, .solution-card { 
+            padding: 2.5rem; 
+            border-radius: 16px; 
+            background: var(--white); 
+            border: 1px solid rgba(0,0,0,0.08); 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05); 
+            transition: all 0.3s ease; 
+            opacity: 0; 
+            transform: translateY(20px); 
+        }
+        
+        .problem-card.visible, .solution-card.visible { 
+            opacity: 1; 
+            transform: translateY(0); 
+        }
+        
+        .problem-card:hover, .solution-card:hover { 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1); 
+            transform: translateY(-5px); 
+        }
+        
+        .problem-card { 
+            border-top: 4px solid var(--accent); 
+        }
+        
+        .solution-card { 
+            border-top: 4px solid var(--primary-light); 
+        }
+        
+        .card-icon { 
+            width: 60px; 
+            height: 60px; 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin-bottom: 1.5rem; 
+            font-size: 24px; 
+            color: var(--white); 
+        }
+        
+        .problem-card .card-icon { 
+            background: var(--accent); 
+        }
+        
+        .solution-card .card-icon { 
+            background: var(--primary-light); 
+        }
+        
+        /* Изменение цвета заголовка "Проблема" на бирюзовый */
+        .problem-card h3 { 
+            color: var(--accent); 
+        }
+        
+        /* Изменение цвета заголовка "Решение" на зеленый */
+        .solution-card h3 { 
+            color: var(--primary); 
+        }
+
+        /* ========== НАША МИССИЯ ========== */
+        .mission-block {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 40px;
+            padding: 3.5rem;
+            margin: 4rem auto;
+            max-width: 980px;
+            text-align: center;
+            color: var(--white);
+            box-shadow: 0 15px 30px rgba(46, 125, 50, 0.15);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+        
+        .mission-block.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .mission-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 28px;
+            color: var(--white);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .mission-title {
+            font-size: 2rem;
+            margin-bottom: 1.2rem;
+            color: var(--white);
+        }
+        
+        .mission-text {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* ========== ИИ ФУНКЦИИ ========== */
+        .ai-features { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 2rem; 
+            margin-top: 3rem; 
+        }
+        
+        .ai-feature { 
+            background: var(--white); 
+            padding: 2rem; 
+            border-radius: 16px; 
+            text-align: center; 
+            border: 1px solid rgba(0,0,0,0.05); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+            transition: all 0.3s ease; 
+            opacity: 0; 
+            transform: translateY(20px); 
+        }
+        
+        .ai-feature.visible { 
+            opacity: 1; 
+            transform: translateY(0); 
+        }
+        
+        .ai-feature:hover { 
+            transform: translateY(-5px); 
+        }
+        
+        /* Синее сияние для первого и третьего блоков */
+        .ai-feature:first-child:hover { 
+            box-shadow: 0 8px 25px rgba(0,188,212,0.15); 
+            border-color: var(--accent);
+        }
+        
+        .ai-feature:last-child:hover { 
+            box-shadow: 0 8px 25px rgba(0,188,212,0.15); 
+            border-color: var(--accent);
+        }
+        
+        /* Зеленое сияние для центрального блока */
+        .ai-feature:nth-child(2):hover { 
+            box-shadow: 0 8px 25px rgba(46,125,50,0.15); 
+            border-color: var(--primary-light);
+        }
+        
+        .ai-icon { 
+            width: 60px; 
+            height: 60px; 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin: 0 auto 1.5rem; 
+            font-size: 24px; 
+            color: var(--white); 
+        }
+        
+        /* Зеленая иконка для центрального блока */
+        .ai-feature:nth-child(2) .ai-icon {
+            background: var(--primary-light);
+        }
+        
+        /* Синяя иконка для первого блока */
+        .ai-feature:first-child .ai-icon {
+            background: var(--accent);
+        }
+        
+        /* Синяя иконка для третьего блока */
+        .ai-feature:last-child .ai-icon {
+            background: var(--accent);
+        }
+
+        /* ========== ПРОЦЕСС ========== */
+        .process-steps { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 2rem; 
+            margin-top: 3rem; 
+        }
+        
+        .step { 
+            text-align: center; 
+            padding: 2rem 1rem; 
+            background: var(--white); 
+            border-radius: 16px; 
+            border: 1px solid rgba(0,0,0,0.05); 
+            transition: all 0.3s ease; 
+            opacity: 0; 
+            transform: translateY(20px); 
+        }
+        
+        .step.visible { 
+            opacity: 1; 
+            transform: translateY(0); 
+        }
+        
+        .step:hover { 
+            box-shadow: 0 8px 25px rgba(46,125,50,0.1); 
+            transform: translateY(-5px); 
+        }
+        
+        .step-number { 
+            width: 50px; 
+            height: 50px; 
+            background: var(--gradient); 
+            color: var(--white); 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.4rem; 
+            font-weight: 700; 
+            margin: 0 auto 1rem; 
+        }
+        
+        .step-text { 
+            font-size: 1.1rem; 
+            color: var(--gray); 
+            font-weight: 500; 
+        }
+
+        /* ========== КОМАНДА ========== */
+        .team-grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 2.5rem; 
+            margin-top: 3rem; 
+        }
+        
+        .team-member { 
+            background: var(--white); 
+            border-radius: 16px; 
+            padding: 2.5rem; 
+            text-align: center; 
+            border: 1px solid rgba(0,0,0,0.05); 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05); 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            opacity: 0; 
+            transform: translateY(20px); 
+            min-height: 200px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .team-member.visible { 
+            opacity: 1; 
+            transform: translateY(0); 
+        }
+        
+        /* ЗЕЛЕНАЯ ПОЛОСКА СНИЗУ (изначально) */
+        .member-bottom-line {
+            position: absolute;
+            width: 100%;
+            height: 5px;
+            background: var(--primary);
+            bottom: 0;
+            left: 0;
+            z-index: 2;
+            opacity: 1;
+            transition: all 0.4s ease;
+            border-radius: 0 0 16px 16px;
+        }
+        
+        /* При наведении зеленая полоска снизу исчезает */
+        .team-member:hover .member-bottom-line {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        
+        /* БИРЮЗОВАЯ ПОЛОСКА СВЕРХУ (появляется при наведении) */
+        .member-top-line {
+            position: absolute;
+            width: 100%;
+            height: 5px;
+            background: var(--accent);
+            top: 0;
+            left: 0;
+            z-index: 2;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.4s ease 0.1s;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        /* При наведении появляется бирюзовая полоска сверху */
+        .team-member:hover .member-top-line {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Эффект приподнятия блока */
+        .team-member:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .member-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 3;
+        }
+
+        .member-contact {
+            font-size: 0.95rem;
+            color: var(--gray);
+            line-height: 1.4;
+            position: relative;
+            z-index: 3;
+        }
+
+        /* ========== ФУТЕР ========== */
+        footer { 
+            background: var(--primary); 
+            color: var(--white); 
+            padding: 4rem 2rem 2rem; 
+        }
+        
+        .footer-content { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            display: grid; 
+            grid-template-columns: 1fr 1fr 1fr; 
+            gap: 3rem; 
+        }
+        
+        .footer-section { 
+            padding: 1rem; 
+        }
+        
+        .footer-logo { 
+            display: flex; 
+            align-items: center; 
+            gap: 1rem; 
+            margin-bottom: 1.5rem; 
+        }
+        
+        .footer-logo-icon { 
+            width: 50px; 
+            height: 50px; 
+            background: var(--accent); 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 24px; 
+            color: var(--white); 
+        }
+        
+        .footer-logo-text h3 { 
+            font-size: 1.4rem; 
+            color: var(--white); 
+            margin-bottom: 0.25rem; 
+        }
+        
+        .footer-logo-text p { 
+            color: rgba(255,255,255,0.7); 
+            font-size: 0.9rem; 
+            margin-bottom: 0; 
+        }
+        
+        .contact-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 1rem; 
+            margin-bottom: 1rem; 
+            color: rgba(255,255,255,0.9); 
+        }
+        
+        .contact-icon { 
+            width: 40px; 
+            height: 40px; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 8px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 18px; 
+            color: var(--accent); 
+        }
+        
+        .project-info { 
+            background: rgba(255,255,255,0.15); 
+            padding: 1.5rem; 
+            border-radius: 12px; 
+        }
+        
+        .copyright { 
+            text-align: center; 
+            margin-top: 4rem; 
+            padding-top: 2rem; 
+            border-top: 1px solid rgba(255,255,255,0.3); 
+            color: var(--white); /* Изменено на белый цвет */
+            font-size: 0.9rem; 
+        }
+        
+        .copyright p { 
+            color: var(--white); /* Белый цвет для текста в копирайте */
+            margin-bottom: 0; 
+        }
+
+        /* ========== АДАПТИВНОСТЬ ========== */
+        @media (max-width: 1024px) {
+            .header-top {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .logo {
+                justify-content: center;
+                text-align: center;
+            }
+            
+            .nav-list {
+                gap: 1rem;
+            }
+            
+            .auth-section {
+                justify-content: center;
+                width: 100%;
+            }
+            
+            .problem-solution-grid { 
+                grid-template-columns: 1fr; 
+                gap: 2rem; 
+            }
+            
+            .ai-features { 
+                grid-template-columns: 1fr 1fr; 
+            }
+            
+            .process-steps { 
+                grid-template-columns: repeat(2, 1fr); 
+            }
+            
+            .team-grid { 
+                grid-template-columns: repeat(2, 1fr); 
+                gap: 2rem;
+            }
+            
+            .footer-content { 
+                grid-template-columns: 1fr; 
+                gap: 2rem; 
+            }
+            
+            h1 { 
+                font-size: 2.8rem; 
+            }
+            
+            h2 { 
+                font-size: 2rem; 
+            }
+            
+            .mission-title { 
+                font-size: 1.8rem; 
+            }
+            
+            .mission-block { 
+                padding: 3rem 2.5rem; 
+                margin: 3rem auto; 
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 1rem;
+            }
+            
+            .nav-list {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .hero-title { 
+                font-size: 2.5rem; 
+            }
+            
+            h1 { 
+                font-size: 2.2rem; 
+            }
+            
+            h2 { 
+                font-size: 1.8rem; 
+            }
+            
+            .section { 
+                padding: 3rem 1.5rem; 
+            }
+            
+            .ai-features { 
+                grid-template-columns: 1fr; 
+            }
+            
+            .process-steps { 
+                grid-template-columns: 1fr; 
+            }
+            
+            .team-grid { 
+                grid-template-columns: 1fr; 
+                gap: 2rem;
+                max-width: 400px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            .hero { 
+                min-height: 70vh; 
+                padding: 2rem 1.5rem; 
+            }
+            
+            .mission-block { 
+                padding: 2.5rem 2rem; 
+                margin: 2.5rem auto; 
+            }
+            
+            .mission-title { 
+                font-size: 1.6rem; 
+            }
+            
+            .mission-text { 
+                font-size: 1.1rem; 
+            }
+            
+            .team-member { 
+                padding: 2rem; 
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero-title { 
+                font-size: 2rem; 
+            }
+            
+            h1 { 
+                font-size: 1.8rem; 
+            }
+            
+            h2 { 
+                font-size: 1.5rem; 
+            }
+            
+            .problem-card, .solution-card { 
+                padding: 1.5rem; 
+            }
+            
+            .team-member { 
+                padding: 1.5rem; 
+            }
+            
+            footer { 
+                padding: 3rem 1.5rem 1.5rem; 
+            }
+            
+            .mission-block { 
+                padding: 2rem 1.5rem; 
+            }
+            
+            .mission-icon { 
+                width: 60px; 
+                height: 60px; 
+                font-size: 24px; 
+            }
+            
+            .mission-title { 
+                font-size: 1.4rem; 
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Шапка -->
+    <div class="header">
+        <div class="header-top">
+            <div class="logo">
+                <div class="logo-icon">
+                    <img src="/Logo.png" alt="MOP Pvl Logo" style="height: 50px; width: auto;">
+                </div>
+                <div class="logo-text">
+                    <h1>MOP Pvl</h1>
+                    <p>Ерке Ертістің жағасында – таза, жайлы, заманауи Павлодар үшін!</p>
+                </div>
+            </div>
+            
+            <!-- Навигационное меню -->
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="/">
+                            <i class="fas fa-map-marked-alt"></i>
+                            <span>Карта проблем</span>
+                        </a>
+                    </li>
+                    <li class="nav-item active">
+                        <a href="/about.html">
+                            <i class="fas fa-info-circle"></i>
+                            <span>О нас</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            
+    </div>
+
+    <!-- Герой секция -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="project-header">
+               
+            </div>
+            <h1 class="hero-title">Городские решения в один клик</h1>
+            <p class="hero-subtitle">
+                Цифровая платформа для решения проблем Павлодара. 
+                Объединяем жителей и администрацию для улучшения города.
+            </p>
+        </div>
+    </section>
+
+    <!-- О проекте -->
+    <section class="section section-light">
+        <h2 class="text-center">О проекте</h2>
+        <div class="section-content">
+            <p class="text-center">
+                <strong>MopPVL</strong> — платформа для улучшения жизни в Павлодаре 
+                через цифровые технологии. Простой инструмент для взаимодействия 
+                горожан с администрацией.
+            </p>
+            
+            <div class="problem-solution-grid">
+                <div class="problem-card">
+                    <div class="card-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3>Проблема</h3>
+                    <p>Жители сталкиваются с городскими проблемами, но нет 
+                       удобной системы для их быстрого решения.</p>
+                    <p>Отсутствие прозрачности снижает эффективность 
+                       городского управления.</p>
+                </div>
+                
+                <div class="solution-card">
+                    <div class="card-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h3>Решение</h3>
+                    <p>Платформа позволяет мгновенно сообщать о проблемах 
+                       через понятный интерфейс с геолокацией.</p>
+                    <p>Автоматизация и прозрачность повышают эффективность 
+                       решения задач.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Наша миссия -->
+    <section class="section">
+        <div class="mission-block">
+            <div class="mission-icon">
+                <i class="fas fa-bullseye"></i>
+            </div>
+            <h2 class="mission-title">Наша миссия</h2>
+            <p class="mission-text">
+                Создать современный и комфортный Павлодар, где каждый житель ощущает себя частью городского сообщества и может активно участвовать в его развитии.
+            </p>
+        </div>
+    </section>
+
+    <!-- ИИ функции -->
+    <section class="section">
+        <h2 class="text-center">Искусственный интеллект</h2>
+        <p class="text-center" style="max-width: 600px; margin: 0 auto 3rem;">
+            Технологии ИИ для управления городскими проблемами
+        </p>
+        <div class="ai-features">
+            <div class="ai-feature">
+                <div class="ai-icon"><i class="fas fa-robot"></i></div>
+                <h3>Google Gemini</h3>
+                <p>Многофункциональная модель ИИ для анализа и обработки текстовых заявок.</p>
+            </div>
+            <div class="ai-feature">
+                <div class="ai-icon"><i class="fas fa-eye"></i></div>
+                <h3>Google Vision Cloud</h3>
+                <p>Компьютерное зрение для автоматического анализа фотографий и оценки ущерба.</p>
+            </div>
+            <div class="ai-feature">
+                <div class="ai-icon"><i class="fas fa-chart-line"></i></div>
+                <h3>Прогнозирование</h3>
+                <p>Алгоритмы прогнозируют проблемы на основе данных платформы.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Процесс -->
+    <section class="section section-light">
+        <h2 class="text-center">Как это работает</h2>
+        <div class="process-steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-text">Сфотографируйте проблему</div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-text">Опишите ситуацию</div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-text">Отметьте на карте</div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-text">Отслеживайте решение</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Команда -->
+    <section class="section">
+        <h2 class="text-center">Авторы платформы</h2>
+        <div class="team-grid">
+            <div class="team-member">
+                <div class="member-bottom-line"></div>
+                <div class="member-top-line"></div>
+                <h3 class="member-name">Маслов Данил Евгеньевич</h3>
+                <div class="member-contact">+7 705 806 5707<br>roxn927@gmail.com</div>
+            </div>
+            
+            <div class="team-member">
+                <div class="member-bottom-line"></div>
+                <div class="member-top-line"></div>
+                <h3 class="member-name">Крестьяников Владимир Олегович</h3>
+                <div class="member-contact">+7 777 937 2755<br>vovagta523@gmail.com</div>
+            </div>
+            
+            <div class="team-member">
+                <div class="member-bottom-line"></div>
+                <div class="member-top-line"></div>
+                <h3 class="member-name">Мороз Андрей Сергеевич</h3>
+                <div class="member-contact">+7 747 443 1941<br>pupkidze01@gmal.com</div>
+            </div>
+            
+            <div class="team-member">
+                <div class="member-bottom-line"></div>
+                <div class="member-top-line"></div>
+                <h3 class="member-name">Нескеев Санжар Серикович</h3>
+                <div class="member-contact">+7 747 443 1941<br>nsanzhar212@gmail.com</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Футер -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <div class="footer-logo-text">
+                        <h3>MopPVL</h3>
+                        <p>Платформа для городских решений</p>
+                    </div>
+                </div>
+                <p style="color: rgba(255,255,255,0.8);">Цифровые сервисы для улучшения жизни в Павлодаре. Технологии на службе у города.</p>
+            </div>
+            <div class="footer-section">
+                <h3 style="color: var(--white); margin-bottom: 1.5rem; font-size: 1.2rem;">Контакты</h3>
+                <div class="contact-item">
+                    <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                    <div>
+                        <div style="font-weight:600;">Электронная почта</div>
+                        <div>vovagta523@gmail.com</div>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon"><i class="fas fa-phone"></i></div>
+                    <div>
+                        <div style="font-weight:600;">Телефон</div>
+                        <div>+7 777 937 2755</div>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <div>
+                        <div style="font-weight:600;">Локация</div>
+                        <div>Павлодар, Казахстан</div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3 style="color: var(--white); margin-bottom: 1.5rem; font-size: 1.2rem;">Информация</h3>
+                <div class="project-info">
+                    <div style="margin-bottom:1rem;">
+                        <div style="font-weight:600;color:var(--accent);">Проект</div>
+                        <div>MopPVL</div>
+                    </div>
+                    <div style="margin-bottom:1rem;">
+                        <div style="font-weight:600;color:var(--accent);">Направление</div>
+                        <div>Цифровые сервисы</div>
+                    </div>
+                    <div>
+                        <div style="font-weight:600;color:var(--accent);">Статус</div>
+                        <div>В разработке</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>© 2025 MopPVL. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function checkVisibility() {
+                const sections = [
+                    { container: document.querySelector('.problem-solution-grid'), items: document.querySelectorAll('.problem-card, .solution-card') },
+                    { container: document.querySelector('.mission-block'), items: document.querySelectorAll('.mission-block') },
+                    { container: document.querySelector('.ai-features'), items: document.querySelectorAll('.ai-feature') },
+                    { container: document.querySelector('.process-steps'), items: document.querySelectorAll('.step') },
+                    { container: document.querySelector('.team-grid'), items: document.querySelectorAll('.team-member') }
+                ];
+                
+                sections.forEach(section => {
+                    if (section.container) {
+                        const rect = section.container.getBoundingClientRect();
+                        const windowHeight = window.innerHeight;
+                        if (rect.top < windowHeight - 100) {
+                            section.items.forEach((item,index) => {
+                                setTimeout(() => { item.classList.add('visible'); }, index*100);
+                            });
+                        }
+                    }
+                });
+            }
+            
+            checkVisibility();
+            window.addEventListener('scroll', checkVisibility);
+        });
+    </script>
+</body>
+</html>
