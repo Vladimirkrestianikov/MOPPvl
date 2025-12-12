@@ -953,6 +953,10 @@ function addMarkerToMap(problem) {
             statusColor = '#2196f3';
             statusText = 'В обработке';
             break;
+        case 'in_work':
+             statusColor =   '#ff9800';
+            statusText = 'В работе';
+            break;
         case 'rejected':
             statusColor = '#9e9e9e';
             statusText = 'Отклонена';
