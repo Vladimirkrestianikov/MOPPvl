@@ -903,15 +903,41 @@ function openFullImage(base64) {
 }
 
 // ==================== РАБОТА С КАРТОЙ ====================
+// ==================== РАБОТА С КАРТОЙ ====================
 function addMarkerToMap(problem) {
-    const color = categoryColors[problem.category] || '#9c27b0';
-    const icon = categoryIcons[problem.category] || 'fa-exclamation-triangle';
+    // Определяем цвет иконки на основе статуса, а не категории
+    let statusColor, statusIcon;
+    
+    switch (problem.status) {
+        case 'solved':
+            statusColor = '#4caf50'; // Зеленый
+            statusIcon = 'fa-check-circle';
+            break;
+        case 'in_work':
+            statusColor = '#ff9800'; // Оранжевый
+            statusIcon = 'fa-wrench';
+            break;
+        case 'in_progress':
+            statusColor = '#2196f3'; // Синий
+            statusIcon = 'fa-cog';
+            break;
+        case 'rejected':
+            statusColor = '#9e9e9e'; // Серый
+            statusIcon = 'fa-times-circle';
+            break;
+        default:
+            statusColor = '#2196f3'; // Синий по умолчанию
+            statusIcon = 'fa-exclamation-triangle';
+    }
+    
+    // Иконка категории (оставляем для вспомогательной информации)
+    const categoryIcon = categoryIcons[problem.category] || 'fa-exclamation-triangle';
     
     // Создаем иконку с фиксированными размерами
     const customIcon = L.divIcon({
         html: `
             <div style="
-                background: ${color};
+                background: ${statusColor};  // Используем цвет статуса!
                 width: 36px;
                 height: 36px;
                 border-radius: 50%;
@@ -924,8 +950,27 @@ function addMarkerToMap(problem) {
                 border: 3px solid white;
                 cursor: pointer;
                 transform: translate(-50%, -50%);
+                position: relative;
             ">
-                <i class="fas ${icon}"></i>
+                <i class="fas ${categoryIcon}"></i>
+                <!-- Маленькая иконка статуса в правом нижнем углу -->
+                <div style="
+                    position: absolute;
+                    bottom: -4px;
+                    right: -4px;
+                    background: white;
+                    border-radius: 50%;
+                    width: 16px;
+                    height: 16px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 8px;
+                    color: ${statusColor};
+                    border: 1px solid ${statusColor};
+                ">
+                    <i class="fas ${statusIcon}"></i>
+                </div>
             </div>
         `,
         iconSize: [36, 36], // Фиксированный размер
@@ -938,39 +983,14 @@ function addMarkerToMap(problem) {
         icon: customIcon
     }).addTo(markersLayer);
     
-    // Получаем статус цвета
-    let statusColor, statusText;
-    switch (problem.status) {
-        case 'solved':
-            statusColor = '#4caf50';
-            statusText = 'Решено';
-            break;
-        case 'in_progress':
-            statusColor = '#2196f3';
-            statusText = 'В обработке';
-            break;
-        case 'processing':
-            statusColor = '#2196f3';
-            statusText = 'В обработке';
-            break;
-        case 'in_work':
-             statusColor =   '#ff9800';
-            statusText = 'В работе';
-            break;
-        case 'rejected':
-            statusColor = '#9e9e9e';
-            statusText = 'Отклонена';
-            break;
-        default:
-            statusColor = '#2196f3';
-            statusText = 'В обработке';
-    }
+    // Получаем статус для текста
+    let statusText = getStatusName(problem.status);
     
     // Упрощенный и компактный попап
     const popupContent = `
         <div style="min-width: 200px; max-width: 250px; font-size: 14px;">
             <div style="
-                background: ${color};
+                background: ${categoryColors[problem.category] || '#9c27b0'};
                 color: white;
                 padding: 8px 12px;
                 border-radius: 8px 8px 0 0;
@@ -981,7 +1001,7 @@ function addMarkerToMap(problem) {
                 align-items: center;
                 gap: 8px;
             ">
-                <i class="fas ${icon}"></i>
+                <i class="fas ${categoryIcon}"></i>
                 <span>${problem.title || 'Проблема'}</span>
             </div>
             
@@ -995,7 +1015,7 @@ function addMarkerToMap(problem) {
                     display: inline-block;
                     margin-bottom: 8px;
                 ">
-                    ${statusText}
+                    <i class="fas ${statusIcon}"></i> ${statusText}
                 </div>
                 
                 <p style="margin: 0 0 10px; line-height: 1.4; color: #555;">
@@ -1644,7 +1664,13 @@ async function changeProblemStatus(problemId, newStatus) {
         });
         
         showNotification(`Статус изменен на "${getStatusName(newStatus)}"`, 'success');
-        loadProblems();
+        
+        // Обновляем маркеры на карте
+        markersLayer.clearLayers();
+        problems.forEach(problem => addMarkerToMap(problem));
+        
+        // Обновляем статистику
+        updateStats();
         
     } catch (error) {
         console.error('Ошибка изменения статуса:', error);
